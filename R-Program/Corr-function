@@ -1,0 +1,16 @@
+corr <- function(directory, threshold = 0) {
+    files_full <- list.files("D:/DATA/specdata/", full.names=TRUE) 
+    options(digits=5)
+ cr<-as.numeric()
+ dat<-data.frame()
+ num<-numeric()
+   for(j in 1:332){
+    dat<-read.csv(files_full[j])
+    dat<-na.omit(dat)
+    num<-sum(complete.cases(dat))
+    if(num>threshold) {
+      cr<-rbind(cr,cor(dat$sulfate,dat$nitrate,use = "complete.obs"))
+    }else{}
+   }
+ print(cr)
+}

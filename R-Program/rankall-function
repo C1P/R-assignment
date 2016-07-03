@@ -1,0 +1,40 @@
+outcome1 <- read.csv("outcome-of-care-measures.csv", colClasses = "character",na.strings="Not Available")
+rankall<- function(outcome,num1=1) { 
+  outcomestate<-outcome1$State
+  statelevels<-outcomestate[!duplicated(outcomestate)]
+  outcometest<-c("heart attack","heart failure","pneumonia")
+  hospitalname<-outcome1[,2]
+  if(!(outcome%in%outcometest)){
+    stop("invalid outcome")
+  }
+  if(outcome=="heart attack"){
+    outcomename<-outcome1[,11]
+  }
+  if(outcome=="heart failure"){
+      outcomename<-outcome1[,17]
+    }
+  if(outcome=="pneumonia"){
+  outcomename<-outcome1[,23] 
+  }
+  outcomename<-as.numeric(outcomename)
+  outcomename<-sapply(outcomename,function(z)z*100)
+  outframe<-data.frame(hospitalname,outcomestate,outcomename)
+  ourframe1<-outframe[order(outframe$outcomestate,outframe$outcomename,outframe$hospitalname),]
+  outcomestate1<-sort(outcomestate)
+  if(num1=="worst"){
+    num1<-1
+    outframe$outcomename[is.na(outframe$outcomename)]<-0
+    ourframe1<-outframe[order(outframe$outcomestate,-outframe$outcomename,outframe$hospitalname),]
+  }
+  num1<-as.numeric(num1)
+  statelevels1<-outframe$outcomestate
+  state<-statelevels1[!duplicated(statelevels1)]
+  state<-sort(state)
+  ourframe1<-split(ourframe1,outcomestate1)
+  out1<-lapply(ourframe1,function(m)m[num1,])
+  out4<-lapply(out1,function(m)m[,1])
+  statenum<-1:54
+  hospital<-unsplit(out4,statenum)
+  out3<-data.frame(hospital,state)
+  print(out3)
+}

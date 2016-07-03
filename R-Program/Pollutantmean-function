@@ -1,0 +1,12 @@
+pollutantmean <- function(directory,pollutant,id=1:332 ){  
+  options(digits=4)
+  files_full <- list.files(directory, full.names=TRUE) 
+  dat <- data.frame()
+  for (i in id) {
+    dat <- rbind(dat, read.csv(files_full[i]))
+  }
+  if (pollutant=="sulfate"){
+    result <- mean(dat[,"sulfate"],na.rm=T)}
+  else{
+    result <- mean(dat[,"nitrate"],na.rm=T)}
+ print(result)}

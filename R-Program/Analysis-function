@@ -1,0 +1,48 @@
+library(dplyr)
+subtest<-read.table("./UCI HAR Dataset/test/subject_test.txt",sep="")
+colnames(subtest)<-c("id")
+ft<-read.table("./UCI HAR Dataset/features.txt",sep="")
+x_test<-read.table("./UCI HAR Dataset/test/x_test.txt",sep="")
+colnames(x_test)<-ft$V2
+y_test<-read.table("./UCI HAR Dataset/test/y_test.txt",sep="")
+colnames(y_test)<-c("y")
+testxy<-cbind(y_test,x_test)
+subt<-cbind(subtest,testxy)
+
+subtrain<-read.table("./UCI HAR Dataset/train/subject_train.txt",sep="")
+colnames(subtrain)<-c("id")
+x_train<-read.table("./UCI HAR Dataset/train/x_train.txt",sep="")
+colnames(x_train)<-ft$V2
+y_train<-read.table("./UCI HAR Dataset/train/y_train.txt",sep="")
+colnames(y_train)<-c("y")
+trainxy<-cbind(y_train,x_train)
+subtr<-cbind(subtrain,trainxy)
+
+sub<-rbind(subt,subtr)
+subid<-sub$y
+##Extract the measurements on the mean and standard deviation from "sub"
+sub1<-sub[grepl("mean",names(sub))|grepl("std",names(sub))]
+##
+sub2<-cbind(sub$id,sub$y,sub1)
+
+tolower(names(sub2))
+acl<-read.table("./UCI HAR Dataset/activity_labels.txt",sep="")
+
+a<-merge(sub2,acl,by.x="sub$y",by.y="V1",all=TRUE)
+a$`sub$y`<-a$V2
+a$V2<-NULL
+##Appropriately label the data set  with descriptive variable name
+a<-a[order(a$`sub$id`),]
+
+subject<-as.numeric(a$`sub$id`)
+colnames(a)[1]<-c("activity")
+colnames(a)[2]<-c("subject")
+splitn<-strsplit(names(a),"-")
+fe<-function(x){paste(x[1],x[2])}
+an<-sapply(splitn,fe)
+
+a1<-group_by(a,activity)
+summarize_each(a1,funs(mean))
+colnames(a2)<-an
+a2<-group_by(a,subject)
+summarize_each(a2,funs(mean))
